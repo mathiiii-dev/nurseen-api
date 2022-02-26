@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -16,12 +17,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private int $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email(message: 'This value is not a valid email address.')]
     private string $email;
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
     #[ORM\Column(type: 'string')]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 8,
+        minMessage: 'Your password must be at least {{ limit }} characters long',
+    )]
     private string $password;
 
     public function getId(): ?int
