@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -40,6 +42,10 @@ class UserController extends AbstractController
         $this->doctrine = $doctrine;
     }
 
+    /**
+     * @throws ExceptionInterface
+     * @throws Exception
+     */
     #[Route('/user', name: 'user_create')]
     public function userCreate(Request $request): JsonResponse|Response
     {
@@ -61,13 +67,8 @@ class UserController extends AbstractController
             $entityManager->flush();
 
             return new JsonResponse([], Response::HTTP_CREATED);
-        } catch (\Exception $exception) {
-            return new JsonResponse([
-                'error' => [
-                    'code' => $exception->getCode(),
-                    'message' => $exception->getMessage()
-                ]
-            ], Response::HTTP_CREATED);
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage(), $exception->getCode());
         }
     }
 }
