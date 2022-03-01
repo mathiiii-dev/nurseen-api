@@ -15,6 +15,10 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
+        api_token_refresh:
+            pattern: ^/api/token/refresh
+            stateless: true
+            refresh_jwt: ~
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -44,6 +48,7 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/user, roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
