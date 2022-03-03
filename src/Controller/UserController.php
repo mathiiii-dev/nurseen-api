@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -37,5 +38,20 @@ class UserController extends AbstractController
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode());
         }
+    }
+
+    #[Route('/login', name: 'user_login', methods: 'POST')]
+    public function userLogin(#[CurrentUser] ?User $user): JsonResponse
+    {
+        if (null === $user) {
+            return $this->json([
+                'message' => 'missing credentials',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return $this->json([
+            'user' => $user->getUserIdentifier(),
+            'token' => 'token',
+        ]);
     }
 }
