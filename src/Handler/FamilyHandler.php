@@ -3,27 +3,45 @@
 namespace App\Handler;
 
 use App\Entity\Family;
+use App\Entity\Kid;
+use App\Entity\Nurse;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\HttpFoundation\Request;
 
 class FamilyHandler
 {
     private ManagerRegistry $doctrine;
+    private ObjectManager $entityManager;
 
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
+        $this->entityManager = $this->doctrine->getManager();
     }
 
     public function handleFamilyCreate(User $user)
     {
-        $entityManager = $this->doctrine->getManager();
-
         $nurse = new Family();
         $nurse->setParent($user);
 
-        $entityManager->persist($nurse);
+        $this->entityManager->persist($nurse);
 
-        $entityManager->flush();
+        $this->entityManager->flush();
+    }
+
+    public function handleFamilyKidCreate(array $data, Nurse $nurse, Family $family)
+    {
+        $kid = (new Kid())
+            ->setNurse($nurse)
+            ->setFamily($family)
+            ->setBirthday(New \DateTime($data['birthday']))
+            ->setFirstname($data['firstname'])
+            ->setLastname($data['lastname']);
+
+        $this->entityManager->persist($kid);
+
+        $this->entityManager->flush();
     }
 }
