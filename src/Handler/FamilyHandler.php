@@ -8,7 +8,6 @@ use App\Entity\Nurse;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\HttpFoundation\Request;
 
 class FamilyHandler
 {
@@ -38,7 +37,9 @@ class FamilyHandler
             ->setFamily($family)
             ->setBirthday(New \DateTime($data['birthday']))
             ->setFirstname($data['firstname'])
-            ->setLastname($data['lastname']);
+            ->setLastname($data['lastname'])
+            ->setActivated(false)
+            ->setArchived(false);
 
         $this->entityManager->persist($kid);
 
