@@ -45,32 +45,14 @@ class KidRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return Kid[] Returns an array of Kid objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findKidsByNurseNonArchived($nurse)
     {
         return $this->createQueryBuilder('k')
-            ->andWhere('k.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('k.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('k.archived = false')
+            ->andWhere('k.nurse = :nurse')
+            ->setParameter('nurse', $nurse)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Kid
-    {
-        return $this->createQueryBuilder('k')
-            ->andWhere('k.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
