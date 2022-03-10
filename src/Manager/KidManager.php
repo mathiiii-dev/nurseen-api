@@ -33,7 +33,16 @@ class KidManager
     public function getKidsByNurse(int $nurseId): array
     {
         $nurse = $this->nurseRepository->findOneBy(['nurse' => $nurseId]);
+
+        if (!$nurse) {
+            throw new \Exception(
+                'No nurse found',
+                404
+            );
+        }
+
         $kids = $this->kidRepository->findKidsByNurseNonArchived($nurse->getId());
+
         if (!$kids) {
             throw new \Exception(
                 'No kids found',
