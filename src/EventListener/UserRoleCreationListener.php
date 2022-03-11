@@ -28,9 +28,9 @@ class UserRoleCreationListener
 
         $role = $entity->getRoles();
 
-        if($role === 'nurse') {
+        if($role[0] === 'ROLE_NURSE') {
             $this->nurseHandler->handleNurseCreate($entity);
-        } elseif($role === 'parent') {
+        } elseif($role[0] === 'ROLE_PARENT') {
             $this->familyHandler->handleFamilyCreate($entity);
         }
     }

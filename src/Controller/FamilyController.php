@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Handler\FamilyHandler;
 use App\Repository\FamilyRepository;
 use App\Service\LinkCodeService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,7 @@ class FamilyController extends AbstractController
         $this->familyRepository = $familyRepository;
     }
 
+    #[IsGranted('ROLE_PARENT', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/family/{familyId}/kid', name: 'app_family_kid', methods: 'POST')]
     public function link(Request $request, int $familyId): Response
     {
