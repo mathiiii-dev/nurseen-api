@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Handler\LinkCodeHandler;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,7 +19,9 @@ class LinkCodeController extends AbstractController
         $this->codeHandler = $codeHandler;
     }
 
+
     #[Route('/link_code/{nurse}', name: 'app_link_code', methods: 'POST')]
+    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
     public function index(Request $request, int $nurse): JsonResponse
     {
         try {
