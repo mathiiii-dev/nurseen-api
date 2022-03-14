@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Calendar;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,9 +17,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CalendarRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private Connection $connection;
+
+    public function __construct(ManagerRegistry $registry, Connection $connection)
     {
         parent::__construct($registry, Calendar::class);
+        $this->connection = $connection;
     }
 
     /**
@@ -45,32 +49,15 @@ class CalendarRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return Calendar[] Returns an array of Calendar objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getCalendarByNurse(int $nurseId): array
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $sql = '
+                select * from calendar as c
+                inner join kid k on k.id = c.kid_id
+                inner join nurse n on n.nurse_id = '.$nurseId.'
+                ';
 
-    /*
-    public function findOneBySomeField($value): ?Calendar
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $this->connection->fetchAllAssociative($sql);
     }
-    */
+
 }
