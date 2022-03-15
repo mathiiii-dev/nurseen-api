@@ -25,11 +25,15 @@ class CalendarHandler
             throw new BadRequestHttpException('Informations manquantes! Veuillez remplir tout les champs.');
         }
 
+        $date = (new \DateTime($data['day']))->setTimezone(new \DateTimeZone('Europe/Paris'));
+        $arrival = (new \DateTime($data['timeRanges'][0]))->setTimezone(new \DateTimeZone('Europe/Paris'));
+        $departure = (new \DateTime($data['timeRanges'][1]))->setTimezone(new \DateTimeZone('Europe/Paris'));
+
         $calendar = (new Calendar())
             ->setKid($kid)
-            ->setArrival(new \DateTime($data['timeRanges'][0]))
-            ->setDeparture(new \DateTime($data['timeRanges'][1]))
-            ->setDay(new \DateTime($data['day']));
+            ->setArrival($arrival)
+            ->setDeparture($departure)
+            ->setDay($date);
 
         $entityManager = $this->doctrine->getManager();
 
