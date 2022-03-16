@@ -43,4 +43,28 @@ class CalendarController extends AbstractController
         return $this->json($events, Response::HTTP_CREATED);
     }
 
+    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
+    #[Route('/calendar/{calendarId}/kid/{kidId}', name: 'app_calendar_edit', methods: 'PATCH')]
+    public function edit(int $calendarId, Request $request, int $kidId): JsonResponse
+    {
+        $kid = $this->kidManager->getKid($kidId);
+        $this->denyAccessUnlessGranted('owner', $kid);
+        $event = $this->calendarRepository->findOneBy(['id' => $calendarId]);
+
+        $this->calendarHandler->handleEditCalendar($request, $event, $kid);
+
+        return $this->json([], Response::HTTP_OK);
+    }
+
+    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
+    #[Route('/calendar/{calendarId}', name: 'app_calendar_delete', methods: 'DELETE')]
+    public function delete(int $calendarId): JsonResponse
+    {
+        $event = $this->calendarRepository->findOneBy(['id' => $calendarId]);
+
+        $this->calendarHandler->handleDeleteCalendar($event);
+
+        return $this->json([], Response::HTTP_OK);
+    }
+
 }
