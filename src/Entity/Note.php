@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\NoteRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
 class Note
@@ -11,11 +12,14 @@ class Note
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['note_list'])]
     private $id;
 
+    #[Groups(['note_list'])]
     #[ORM\Column(type: 'text')]
     private $note;
 
+    #[Groups(['note_list'])]
     #[ORM\Column(type: 'date')]
     private $date;
 
