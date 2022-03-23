@@ -48,9 +48,13 @@ class Kid
     #[ORM\OneToMany(mappedBy: 'kid', targetEntity: Calendar::class, orphanRemoval: true)]
     private $calendars;
 
+    #[ORM\OneToMany(mappedBy: 'kid', targetEntity: Note::class)]
+    private $notes;
+
     public function __construct()
     {
         $this->calendars = new ArrayCollection();
+        $this->notes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -166,6 +170,36 @@ class Kid
             // set the owning side to null (unless already changed)
             if ($calendar->getKid() === $this) {
                 $calendar->setKid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Note>
+     */
+    public function getNotes(): Collection
+    {
+        return $this->notes;
+    }
+
+    public function addNote(Note $note): self
+    {
+        if (!$this->notes->contains($note)) {
+            $this->notes[] = $note;
+            $note->setKid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNote(Note $note): self
+    {
+        if ($this->notes->removeElement($note)) {
+            // set the owning side to null (unless already changed)
+            if ($note->getKid() === $this) {
+                $note->setKid(null);
             }
         }
 
