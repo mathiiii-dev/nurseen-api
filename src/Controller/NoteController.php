@@ -25,7 +25,7 @@ class NoteController extends AbstractController
         $this->noteRepository = $noteRepository;
     }
 
-    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
+    #[IsGranted(['ROLE_NURSE', 'ROLE_PARENT'], message: 'Vous ne pouvez pas faire ça')]
     #[Route('/note/kid/{kidId}', name: 'app_note', methods: 'POST')]
     public function create(Request $request, int $kidId): Response
     {
@@ -35,7 +35,6 @@ class NoteController extends AbstractController
         return $this->json([], Response::HTTP_CREATED);
     }
 
-    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/note/kid/{kidId}/all', name: 'app_note_all', methods: 'GET')]
     public function getAll(int $kidId): Response
     {
@@ -43,6 +42,13 @@ class NoteController extends AbstractController
         $this->denyAccessUnlessGranted('owner', $kid);
         $notes = $this->noteRepository->findBy(['kid' => $kid->getId()]);
         return $this->json($notes, Response::HTTP_OK, [], ['groups' => 'note_list']);
+    }
+
+    #[Route('/note/{noteId}', name: 'app_note_get_one', methods: 'GET')]
+    public function getOne(int $noteId): Response
+    {
+        $note = $this->noteRepository->findOneBy(['id' => $noteId]);
+        return $this->json($note, Response::HTTP_OK, [], ['groups' => 'note_list']);
     }
 
     #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]

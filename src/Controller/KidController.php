@@ -62,7 +62,6 @@ class KidController extends AbstractController
         return $this->json($kid, Response::HTTP_OK, [], ['groups' => 'kid_list']);
     }
 
-    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/kid/{kidId}', name: 'app_kid', methods: 'GET')]
     public function getKid(int $kidId): JsonResponse
     {
@@ -70,5 +69,16 @@ class KidController extends AbstractController
         $this->denyAccessUnlessGranted('owner', $kid);
 
         return $this->json($kid, Response::HTTP_OK, [], ['groups' => 'kid_list']);
+    }
+
+    #[IsGranted('ROLE_PARENT', message: 'Vous ne pouvez pas faire ça')]
+    #[Route('/kid/family/{familyId}', name: 'app_kid_family')]
+    public function getKidByFamily(int $familyId): JsonResponse
+    {
+        $kids = $this->kidManager->getKidsByFamily($familyId);
+        foreach ($kids as $kid) {
+            $this->denyAccessUnlessGranted('owner', $kid);
+        }
+        return $this->json($kids, Response::HTTP_OK, [], ['groups' => 'kid_list']);
     }
 }

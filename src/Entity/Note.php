@@ -23,7 +23,7 @@ class Note
     #[ORM\Column(type: 'date')]
     private $date;
 
-    #[ORM\ManyToOne(targetEntity: Kid::class, inversedBy: 'notes')]
+    #[ORM\ManyToOne(targetEntity: Kid::class, inversedBy: 'note')]
     private $kid;
 
     public function getId(): ?int

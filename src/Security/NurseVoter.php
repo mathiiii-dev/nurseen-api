@@ -46,7 +46,7 @@ class NurseVoter extends Voter
      */
     private function canHandleKid(Kid $kid, User $user): bool
     {
-        if ($kid->getNurse()->getNurse()->getId() !== $user->getId()) {
+        if ($kid->getNurse()->getNurse()->getId() !== $user->getId() && $kid->getFamily()->getParent()->getId() !== $user->getId()) {
             throw new AccessDeniedHttpException("You can't do this", null, 404);
         }
 
