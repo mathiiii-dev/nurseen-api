@@ -6,6 +6,7 @@ use App\Entity\Kid;
 use App\Repository\FamilyRepository;
 use App\Repository\KidRepository;
 use App\Repository\NurseRepository;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class KidManager
 {
@@ -24,9 +25,8 @@ class KidManager
     {
         $kid = $this->kidRepository->findOneBy(['id' => $kidId]);
         if (!$kid) {
-            throw new \Exception(
-                'No kid found',
-                404
+            throw new NotFoundHttpException(
+                'No kid found'
             );
         }
 
@@ -38,22 +38,12 @@ class KidManager
         $nurse = $this->nurseRepository->findOneBy(['nurse' => $nurseId]);
 
         if (!$nurse) {
-            throw new \Exception(
-                'No nurse found',
-                404
+            throw new NotFoundHttpException(
+                'No nurse found'
             );
         }
 
-        $kids = $this->kidRepository->findKidsByNurseNonArchived($nurse->getId());
-
-        if (!$kids) {
-            throw new \Exception(
-                'No kids found',
-                404
-            );
-        }
-
-        return $kids;
+        return $this->kidRepository->findKidsByNurseNonArchived($nurse->getId());
     }
 
     public function getKidsByFamily(int $familyId): array
@@ -67,16 +57,7 @@ class KidManager
             );
         }
 
-        $kids = $this->kidRepository->findBy(['family' => $family->getId()]);
-
-        if (!$kids) {
-            throw new \Exception(
-                'No kids found',
-                404
-            );
-        }
-
-        return $kids;
+        return $this->kidRepository->findBy(['family' => $family->getId()]);
     }
 
 }
