@@ -12,6 +12,7 @@ class Gallery
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['gallery'])]
     private $id;
 
     #[Groups(['gallery'])]
