@@ -25,7 +25,7 @@ class NoteController extends AbstractController
         $this->noteRepository = $noteRepository;
     }
 
-    #[IsGranted(['ROLE_NURSE', 'ROLE_PARENT'], message: 'Vous ne pouvez pas faire ça')]
+    #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/note/kid/{kidId}', name: 'app_note', methods: 'POST')]
     public function create(Request $request, int $kidId): Response
     {
