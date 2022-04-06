@@ -22,9 +22,13 @@ class Nurse
     #[ORM\OneToMany(mappedBy: 'nurse', targetEntity: Kid::class, orphanRemoval: true)]
     private $kids;
 
+    #[ORM\OneToMany(mappedBy: 'nurse', targetEntity: Gallery::class)]
+    private $galleries;
+
     public function __construct()
     {
         $this->kids = new ArrayCollection();
+        $this->galleries = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -68,6 +72,36 @@ class Nurse
             // set the owning side to null (unless already changed)
             if ($kid->getNurse() === $this) {
                 $kid->setNurse(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Gallery>
+     */
+    public function getGalleries(): Collection
+    {
+        return $this->galleries;
+    }
+
+    public function addGallery(Gallery $gallery): self
+    {
+        if (!$this->galleries->contains($gallery)) {
+            $this->galleries[] = $gallery;
+            $gallery->setNurse($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGallery(Gallery $gallery): self
+    {
+        if ($this->galleries->removeElement($gallery)) {
+            // set the owning side to null (unless already changed)
+            if ($gallery->getNurse() === $this) {
+                $gallery->setNurse(null);
             }
         }
 
