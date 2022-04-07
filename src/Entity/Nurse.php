@@ -6,6 +6,7 @@ use App\Repository\NurseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NurseRepository::class)]
 class Nurse
@@ -17,6 +18,7 @@ class Nurse
 
     #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['gallery'])]
     private $nurse;
 
     #[ORM\OneToMany(mappedBy: 'nurse', targetEntity: Kid::class, orphanRemoval: true)]

@@ -3,11 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Gallery;
+use App\Repository\FamilyRepository;
 use App\Repository\GalleryRepository;
+use App\Repository\KidRepository;
 use App\Repository\NurseRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,16 +25,25 @@ class GalleryController extends AbstractController
     private NurseRepository $nurseRepository;
     private ManagerRegistry $doctrine;
     private GalleryRepository $galleryRepository;
+    private Filesystem $filesystem;
+    private KidRepository $kidRepository;
+    private FamilyRepository $familyRepository;
 
     public function __construct(SluggerInterface  $slugger,
                                 NurseRepository   $nurseRepository,
                                 ManagerRegistry   $doctrine,
-                                GalleryRepository $galleryRepository)
+                                GalleryRepository $galleryRepository,
+                                Filesystem        $filesystem,
+                                KidRepository     $kidRepository,
+                                FamilyRepository $familyRepository)
     {
         $this->slugger = $slugger;
         $this->nurseRepository = $nurseRepository;
         $this->doctrine = $doctrine;
         $this->galleryRepository = $galleryRepository;
+        $this->filesystem = $filesystem;
+        $this->kidRepository = $kidRepository;
+        $this->familyRepository = $familyRepository;
     }
 
     #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
@@ -39,7 +51,7 @@ class GalleryController extends AbstractController
     public function index(Request $request, int $nurseId): JsonResponse
     {
         $files = $request->files;
-        $nurse = $this->nurseRepository->findOneBy(['id' => $nurseId]);
+        $nurse = $this->nurseRepository->findOneBy(['nurse' => $nurseId]);
         $entityManager = $this->doctrine->getManager();
 
         /* @var UploadedFile $file */
@@ -50,7 +62,6 @@ class GalleryController extends AbstractController
             $photo = (new Gallery())->setUrl($fileName)->setNurse($nurse);
             $entityManager->persist($photo);
             $entityManager->flush();
-
             try {
                 $file->move($this->getParameter('gallery_directory').'/'.$nurseId, $fileName);
             } catch (FileException $e) {
@@ -62,10 +73,21 @@ class GalleryController extends AbstractController
     }
 
     #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
-    #[Route('/gallery/nurse/{nurseId}', name: 'app_gallery_get', methods: 'GET')]
-    public function gallery(int $nurseId): JsonResponse
+    #[Route('/gallery/nurse/{nurseId}', name: 'app_gallery_get_nurse', methods: 'GET')]
+    public function galleryNurse(int $nurseId): JsonResponse
     {
-        $photos = $this->galleryRepository->findBy(['nurse' => $nurseId]);
+        $nurse = $this->nurseRepository->findOneBy(['nurse' => $nurseId]);
+        $photos = $this->galleryRepository->findBy(['nurse' => $nurse->getId()]);
+        return $this->json($photos, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
+    }
+
+    #[IsGranted('ROLE_PARENT', message: 'Vous ne pouvez pas faire ça')]
+    #[Route('/gallery/family/{familyId}', name: 'app_gallery_get_family', methods: 'GET')]
+    public function galleryFamily(int $familyId): JsonResponse
+    {
+        $family = $this->familyRepository->findOneBy(['parent' => $familyId]);
+        $kid = $this->kidRepository->findOneBy(['family' => $family->getId()]);
+        $photos = $this->galleryRepository->findBy(['nurse' => $kid->getNurse()->getId()]);
         return $this->json($photos, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
     }
 
@@ -75,6 +97,7 @@ class GalleryController extends AbstractController
     {
         $entityManager = $this->doctrine->getManager();
         $photo = $this->galleryRepository->findOneBy(['id' => $galleryId]);
+        $this->filesystem->remove($this->getParameter('gallery_directory').'/'.$photo->getNurse()->getNurse()->getId().'/'.$photo->getUrl());
         $entityManager->remove($photo);
         $entityManager->flush();
         return $this->json([], Response::HTTP_NO_CONTENT);
