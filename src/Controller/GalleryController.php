@@ -8,6 +8,7 @@ use App\Repository\GalleryRepository;
 use App\Repository\KidRepository;
 use App\Repository\NurseRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Pagerfanta\Adapter;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class GalleryController extends AbstractController
@@ -74,21 +76,35 @@ class GalleryController extends AbstractController
 
     #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/gallery/nurse/{nurseId}', name: 'app_gallery_get_nurse', methods: 'GET')]
-    public function galleryNurse(int $nurseId): JsonResponse
+    public function galleryNurse(int $nurseId, Request $request): JsonResponse
     {
         $nurse = $this->nurseRepository->findOneBy(['nurse' => $nurseId]);
         $photos = $this->galleryRepository->findBy(['nurse' => $nurse->getId()]);
-        return $this->json($photos, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
+
+        $pagerfanta = new Pagerfanta(
+            new Adapter\ArrayAdapter($photos)
+        );
+
+        $pagerfanta->setCurrentPage($request->query->get('page'));
+
+        return $this->json($pagerfanta, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
     }
 
     #[IsGranted('ROLE_PARENT', message: 'Vous ne pouvez pas faire ça')]
     #[Route('/gallery/family/{familyId}', name: 'app_gallery_get_family', methods: 'GET')]
-    public function galleryFamily(int $familyId): JsonResponse
+    public function galleryFamily(int $familyId, Request $request): JsonResponse
     {
         $family = $this->familyRepository->findOneBy(['parent' => $familyId]);
         $kid = $this->kidRepository->findOneBy(['family' => $family->getId()]);
         $photos = $this->galleryRepository->findBy(['nurse' => $kid->getNurse()->getId()]);
-        return $this->json($photos, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
+
+        $pagerfanta = new Pagerfanta(
+            new Adapter\ArrayAdapter($photos)
+        );
+
+        $pagerfanta->setCurrentPage($request->query->get('page'));
+
+        return $this->json($pagerfanta, Response::HTTP_CREATED, [], ['groups' => 'gallery']);
     }
 
     #[IsGranted('ROLE_NURSE', message: 'Vous ne pouvez pas faire ça')]
