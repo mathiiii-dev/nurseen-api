@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ValidatorService
@@ -18,7 +19,7 @@ class ValidatorService
     {
         $errors = $this->validator->validate($object);
         if (count($errors) > 0) {
-            return new Response((string)$errors, 400);
+            throw new BadRequestHttpException($errors->get(0)->getMessage());
         }
     }
 }
