@@ -19,6 +19,7 @@ class Gallery
     #[ORM\Column(type: 'text')]
     private $url;
 
+    #[Groups(['gallery'])]
     #[ORM\ManyToOne(targetEntity: Nurse::class, inversedBy: 'galleries')]
     private $nurse;
 
